@@ -33,8 +33,8 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 18: Deterministic physics**
     - **Validates: Requirements 4.5**
 
-- [ ] 3. Implement collision detection system
-  - [ ] 3.1 Create AABB collision detection with swept collision
+- [x] 3. Implement collision detection system
+  - [x] 3.1 Create AABB collision detection with swept collision
     - Implement swept AABB algorithm to prevent tunneling
     - Detect collisions with level geometry
     - Resolve collisions by adjusting position and velocity
@@ -49,7 +49,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 16: Velocity projection on collision**
     - **Validates: Requirements 4.3**
   
-  - [ ] 3.4 Implement slope physics
+  - [x] 3.4 Implement slope physics
     - Calculate slope angle from collision normal
     - Apply friction and sliding forces on slopes
     - _Requirements: 4.4_
@@ -58,13 +58,13 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 17: Slope physics**
     - **Validates: Requirements 4.4**
 
-- [ ] 4. Implement input system and basic player movement
-  - [ ] 4.1 Create input processing system
+- [x] 4. Implement input system and basic player movement
+  - [x] 4.1 Create input processing system
     - Read keyboard input for movement and jump
     - Translate input to PlayerIntent component
     - _Requirements: 1.1, 1.2_
   
-  - [ ] 4.2 Implement horizontal movement
+  - [x] 4.2 Implement horizontal movement
     - Apply horizontal velocity based on input
     - Maintain consistent movement speed
     - _Requirements: 1.1_
@@ -73,7 +73,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 1: Consistent horizontal movement speed**
     - **Validates: Requirements 1.1**
   
-  - [ ] 4.3 Implement basic jump mechanic
+  - [x] 4.3 Implement basic jump mechanic
     - Apply fixed jump velocity when grounded and jump pressed
     - Implement variable jump height (reduce velocity on key release)
     - _Requirements: 1.2, 1.3_

@@ -153,6 +153,24 @@ impl Default for AnimationState {
 #[derive(Component)]
 pub struct Player;
 
+/// Player intent component - captures player input
+#[derive(Component, Clone, Copy, Debug, PartialEq, Default)]
+pub struct PlayerIntent {
+    pub move_left: bool,
+    pub move_right: bool,
+    pub jump_pressed: bool,
+    pub jump_just_released: bool,
+}
+
+/// Level geometry component - static collision data
+#[derive(Component, Clone, Debug, PartialEq)]
+pub struct LevelGeometry {
+    pub x: f32,
+    pub y: f32,
+    pub width: f32,
+    pub height: f32,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
