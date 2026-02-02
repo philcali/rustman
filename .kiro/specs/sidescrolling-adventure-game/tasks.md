@@ -196,13 +196,13 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 23: Swing momentum preservation on release**
     - **Validates: Requirements 6.3**
 
-- [ ] 9. Checkpoint - Ensure all abilities work correctly
+- [x] 9. Checkpoint - Ensure all abilities work correctly
   - Run all tests to verify ability system and mechanics
   - Manually test each ability (high jump, wall climb, swing)
   - Ask the user if questions arise
 
-- [ ] 10. Implement level loading system
-  - [ ] 10.1 Create level data structures
+- [x] 10. Implement level loading system
+  - [x] 10.1 Create level data structures
     - Define LevelData struct matching JSON format
     - Implement serde serialization/deserialization
     - _Requirements: 3.1_
@@ -211,7 +211,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 12: Level data round-trip**
     - **Validates: Requirements 3.1**
   
-  - [ ] 10.3 Implement level loading from JSON
+  - [x] 10.3 Implement level loading from JSON
     - Load level JSON files from disk
     - Parse into LevelData structures
     - Spawn level geometry entities
@@ -223,7 +223,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - Test missing required fields handling
     - Test invalid geometry data handling
   
-  - [ ] 10.5 Implement level transitions
+  - [x] 10.5 Implement level transitions
     - Detect when player reaches transition trigger
     - Unload current level and load new level
     - Preserve game state across transition
@@ -238,7 +238,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 15: Correct spawn point after transition**
     - **Validates: Requirements 3.5**
   
-  - [ ] 10.8 Implement ability-gated areas
+  - [x] 10.8 Implement ability-gated areas
     - Check required ability for area access
     - Block or allow passage based on ability unlock
     - _Requirements: 3.3_
