@@ -157,13 +157,13 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 28: Wall top transition**
     - **Validates: Requirements 7.5**
 
-- [ ] 8. Implement swing mechanic
-  - [ ] 8.1 Create swing point detection system
+- [x] 8. Implement swing mechanic
+  - [x] 8.1 Create swing point detection system
     - Detect nearby swing points
     - Check if player is within range
     - _Requirements: 2.5, 6.1_
   
-  - [ ] 8.2 Implement swing attachment
+  - [x] 8.2 Implement swing attachment
     - Enter swing state when conditions met and ability unlocked
     - Store anchor point and rope length in SwingState
     - _Requirements: 6.1_
@@ -172,7 +172,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 10: Swing gated by ability**
     - **Validates: Requirements 2.5, 6.1**
   
-  - [ ] 8.4 Implement pendulum physics
+  - [x] 8.4 Implement pendulum physics
     - Calculate angular acceleration based on gravity and rope length
     - Apply player input as torque
     - Update position along swing arc
@@ -187,7 +187,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 24: Swing input affects angular velocity**
     - **Validates: Requirements 6.4**
   
-  - [ ] 8.7 Implement swing release
+  - [x] 8.7 Implement swing release
     - Detach from swing point on key release
     - Preserve tangential velocity as linear velocity
     - _Requirements: 6.3_

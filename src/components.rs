@@ -177,6 +177,12 @@ pub struct PowerUp {
     pub ability: Ability,
 }
 
+/// Swing point component - represents a point the player can swing from
+#[derive(Component, Clone, Copy, Debug, PartialEq)]
+pub struct SwingPoint {
+    pub range: f32, // Maximum distance player can be to attach
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -14,7 +14,6 @@ pub const WALL_CLIMB_SPEED: f32 = 150.0; // pixels per second
 pub const WALL_JUMP_HORIZONTAL_VELOCITY: f32 = 250.0; // pixels per second
 pub const WALL_JUMP_VERTICAL_VELOCITY: f32 = -450.0; // pixels per second (negative = up)
 
-
 /// Plugin for player character logic and state
 pub struct PlayerPlugin;
 
@@ -624,7 +623,10 @@ mod tests {
 
     #[test]
     fn test_wall_jump_from_left_wall() {
-        let intent = PlayerIntent { jump_pressed: true, ..Default::default() };
+        let intent = PlayerIntent {
+            jump_pressed: true,
+            ..Default::default()
+        };
         let mut velocity = Velocity::new(0.0, 0.0);
         let wall_state = WallClimbState {
             is_clinging: true,
@@ -655,7 +657,10 @@ mod tests {
 
     #[test]
     fn test_wall_jump_from_right_wall() {
-        let intent = PlayerIntent { jump_pressed: true, ..Default::default() };
+        let intent = PlayerIntent {
+            jump_pressed: true,
+            ..Default::default()
+        };
         let mut velocity = Velocity::new(0.0, 0.0);
         let wall_state = WallClimbState {
             is_clinging: true,
@@ -686,7 +691,10 @@ mod tests {
 
     #[test]
     fn test_wall_jump_exits_cling_state() {
-        let intent = PlayerIntent { jump_pressed: true, ..Default::default() };
+        let intent = PlayerIntent {
+            jump_pressed: true,
+            ..Default::default()
+        };
         let mut wall_state = WallClimbState {
             is_clinging: true,
             wall_normal: Vec2::new(1.0, 0.0),
@@ -705,7 +713,10 @@ mod tests {
 
     #[test]
     fn test_wall_jump_has_both_horizontal_and_vertical_components() {
-        let intent = PlayerIntent { jump_pressed: true, ..Default::default() };
+        let intent = PlayerIntent {
+            jump_pressed: true,
+            ..Default::default()
+        };
         let mut velocity = Velocity::new(0.0, 0.0);
         let wall_state = WallClimbState {
             is_clinging: true,
@@ -731,7 +742,10 @@ mod tests {
 
     #[test]
     fn test_no_wall_jump_when_not_clinging() {
-        let intent = PlayerIntent { jump_pressed: true, ..Default::default() };
+        let intent = PlayerIntent {
+            jump_pressed: true,
+            ..Default::default()
+        };
         let mut velocity = Velocity::new(0.0, 0.0);
         let wall_state = WallClimbState {
             is_clinging: false, // Not clinging

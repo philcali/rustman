@@ -1,5 +1,5 @@
 use crate::components::{
-    Collider, GroundedState, LevelGeometry, Position, Velocity, WallClimbState,
+    Collider, GroundedState, LevelGeometry, Position, SwingState, Velocity, WallClimbState,
 };
 use bevy::prelude::*;
 
@@ -40,14 +40,19 @@ impl Plugin for PhysicsPlugin {
 
 /// Apply gravity to airborne entities
 fn apply_gravity(
-    mut query: Query<(&mut Velocity, &GroundedState, &WallClimbState)>,
+    mut query: Query<(
+        &mut Velocity,
+        &GroundedState,
+        &WallClimbState,
+        Option<&SwingState>,
+    )>,
     time: Res<Time<Fixed>>,
 ) {
     let delta_time = time.delta_seconds();
 
-    for (mut velocity, grounded, wall_state) in query.iter_mut() {
-        // Only apply gravity if not grounded AND not clinging to wall
-        if !grounded.is_grounded && !wall_state.is_clinging {
+    for (mut velocity, grounded, wall_state, swing_state) in query.iter_mut() {
+        // Only apply gravity if not grounded AND not clinging to wall AND not swinging
+        if !grounded.is_grounded && !wall_state.is_clinging && swing_state.is_none() {
             velocity.y += GRAVITY * delta_time;
         }
     }
@@ -151,13 +156,18 @@ pub fn swept_aabb_collision(
 
 /// Resolve collisions with level geometry
 fn resolve_collisions(
-    mut query: Query<(&mut Position, &mut Velocity, &Collider)>,
+    mut query: Query<(&mut Position, &mut Velocity, &Collider, Option<&SwingState>)>,
     geometry_query: Query<&LevelGeometry>,
     time: Res<Time<Fixed>>,
 ) {
     let delta_time = time.delta_seconds();
 
-    for (mut position, mut velocity, collider) in query.iter_mut() {
+    for (mut position, mut velocity, collider, swing_state) in query.iter_mut() {
+        // Skip collision resolution if swinging (swing physics handles position)
+        if swing_state.is_some() {
+            continue;
+        }
+
         let movement = Vec2::new(velocity.x * delta_time, velocity.y * delta_time);
 
         // Find earliest collision
@@ -193,10 +203,22 @@ fn resolve_collisions(
 
 /// Update grounded state based on ground contact
 fn update_grounded_state(
-    mut query: Query<(&Position, &Collider, &mut GroundedState)>,
+    mut query: Query<(
+        &Position,
+        &Collider,
+        &mut GroundedState,
+        Option<&SwingState>,
+    )>,
     geometry_query: Query<&LevelGeometry>,
 ) {
-    for (position, collider, mut grounded_state) in query.iter_mut() {
+    for (position, collider, mut grounded_state, swing_state) in query.iter_mut() {
+        // Not grounded while swinging
+        if swing_state.is_some() {
+            grounded_state.is_grounded = false;
+            grounded_state.ground_normal = Vec2::ZERO;
+            continue;
+        }
+
         // Check for ground contact by testing slightly below the entity
         let check_movement = Vec2::new(0.0, GROUND_CHECK_EPSILON);
 
@@ -856,6 +878,34 @@ mod tests {
         assert_eq!(
             velocity.y, 0.0,
             "Gravity should not be applied during wall-cling"
+        );
+    }
+
+    #[test]
+    fn test_gravity_not_applied_during_swing() {
+        let mut velocity = Velocity::new(0.0, 0.0);
+        let grounded = GroundedState {
+            is_grounded: false,
+            ground_normal: Vec2::ZERO,
+        };
+        let wall_state = WallClimbState {
+            is_clinging: false,
+            wall_normal: Vec2::ZERO,
+        };
+        let swing_state = Some(SwingState {
+            anchor_point: Vec2::new(100.0, 200.0),
+            rope_length: 50.0,
+            angular_velocity: 0.0,
+        });
+
+        // Simulate one frame of gravity with swing
+        if !grounded.is_grounded && !wall_state.is_clinging && swing_state.is_none() {
+            velocity.y += GRAVITY * FIXED_TIMESTEP;
+        }
+
+        assert_eq!(
+            velocity.y, 0.0,
+            "Gravity should not be applied during swing"
         );
     }
 }
