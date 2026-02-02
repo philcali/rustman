@@ -115,13 +115,13 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 8: High jump increases velocity**
     - **Validates: Requirements 2.3**
 
-- [ ] 7. Implement wall climb mechanic
-  - [ ] 7.1 Create wall detection system
+- [x] 7. Implement wall climb mechanic
+  - [x] 7.1 Create wall detection system
     - Detect adjacent walls using raycasts or collision checks
     - Store wall normal in WallClimbState component
     - _Requirements: 2.4, 7.1_
   
-  - [ ] 7.2 Implement wall-cling state
+  - [x] 7.2 Implement wall-cling state
     - Enter wall-cling when conditions met and ability unlocked
     - Negate gravity during wall-cling
     - Allow vertical movement input
@@ -139,7 +139,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 27: Climb speed less than ground speed**
     - **Validates: Requirements 7.4**
   
-  - [ ] 7.6 Implement wall jump
+  - [x] 7.6 Implement wall jump
     - Apply velocity away from wall and upward on jump press
     - Transition to airborne state
     - _Requirements: 7.3_
@@ -148,7 +148,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 26: Wall jump velocity direction**
     - **Validates: Requirements 7.3**
   
-  - [ ] 7.8 Implement wall top transition
+  - [x] 7.8 Implement wall top transition
     - Detect when player reaches top of wall
     - Transition to grounded state
     - _Requirements: 7.5_

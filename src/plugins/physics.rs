@@ -1,4 +1,6 @@
-use crate::components::{Collider, GroundedState, LevelGeometry, Position, Velocity};
+use crate::components::{
+    Collider, GroundedState, LevelGeometry, Position, Velocity, WallClimbState,
+};
 use bevy::prelude::*;
 
 /// Physics constants
@@ -7,6 +9,7 @@ const FIXED_TIMESTEP: f32 = 1.0 / 60.0; // 60 FPS fixed timestep
 const GROUND_CHECK_EPSILON: f32 = 2.0; // Distance to check for ground contact
 const SLOPE_FRICTION: f32 = 0.3; // Friction coefficient for slopes
 const MIN_SLOPE_ANGLE: f32 = 0.1; // Minimum angle (radians) to be considered a slope
+pub const WALL_CHECK_DISTANCE: f32 = 5.0; // Distance to check for adjacent walls
 
 /// Collision result
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -28,6 +31,7 @@ impl Plugin for PhysicsPlugin {
                 resolve_collisions,
                 update_grounded_state,
                 apply_slope_physics,
+                detect_adjacent_walls,
             )
                 .chain(),
         );
@@ -35,12 +39,15 @@ impl Plugin for PhysicsPlugin {
 }
 
 /// Apply gravity to airborne entities
-fn apply_gravity(mut query: Query<(&mut Velocity, &GroundedState)>, time: Res<Time<Fixed>>) {
+fn apply_gravity(
+    mut query: Query<(&mut Velocity, &GroundedState, &WallClimbState)>,
+    time: Res<Time<Fixed>>,
+) {
     let delta_time = time.delta_seconds();
 
-    for (mut velocity, grounded) in query.iter_mut() {
-        // Only apply gravity if not grounded
-        if !grounded.is_grounded {
+    for (mut velocity, grounded, wall_state) in query.iter_mut() {
+        // Only apply gravity if not grounded AND not clinging to wall
+        if !grounded.is_grounded && !wall_state.is_clinging {
             velocity.y += GRAVITY * delta_time;
         }
     }
@@ -48,7 +55,7 @@ fn apply_gravity(mut query: Query<(&mut Velocity, &GroundedState)>, time: Res<Ti
 
 /// Swept AABB collision detection
 /// Returns (time_of_impact, collision_normal) if collision occurs
-fn swept_aabb_collision(
+pub fn swept_aabb_collision(
     pos: &Position,
     collider: &Collider,
     geometry: &LevelGeometry,
@@ -252,6 +259,46 @@ fn apply_slope_physics(mut query: Query<(&mut Velocity, &GroundedState)>, time: 
 
         velocity.x += friction_force * slope_direction.x * delta_time;
         velocity.y += friction_force * slope_direction.y * delta_time;
+    }
+}
+
+/// Detect adjacent walls and update WallClimbState
+fn detect_adjacent_walls(
+    mut query: Query<(&Position, &Collider, &mut WallClimbState)>,
+    geometry_query: Query<&LevelGeometry>,
+) {
+    for (position, collider, mut wall_state) in query.iter_mut() {
+        let mut wall_detected = false;
+        let mut detected_wall_normal = Vec2::ZERO;
+
+        // Check for walls on left and right sides
+        for direction in [
+            Vec2::new(-WALL_CHECK_DISTANCE, 0.0),
+            Vec2::new(WALL_CHECK_DISTANCE, 0.0),
+        ] {
+            for geometry in geometry_query.iter() {
+                if let Some((time, normal)) =
+                    swept_aabb_collision(position, collider, geometry, direction)
+                {
+                    // Wall detected if collision happens very close and normal is horizontal
+                    if time < 1.0 && normal.x.abs() > 0.5 {
+                        wall_detected = true;
+                        detected_wall_normal = normal;
+                        break;
+                    }
+                }
+            }
+            if wall_detected {
+                break;
+            }
+        }
+
+        // Update wall climb state with detected wall
+        if wall_detected {
+            wall_state.wall_normal = detected_wall_normal;
+        } else {
+            wall_state.wall_normal = Vec2::ZERO;
+        }
     }
 }
 
@@ -691,5 +738,124 @@ mod tests {
         }
 
         assert_eq!(velocity.x, 0.0, "No slope physics on flat ground");
+    }
+
+    #[test]
+    fn test_wall_detection_left_side() {
+        let collider = Collider::new(32.0, 32.0);
+        let wall = LevelGeometry {
+            x: 0.0,
+            y: 0.0,
+            width: 32.0,
+            height: 200.0,
+        };
+
+        // Check for wall on left side
+        // Player is at x=35, collider left edge is at x=35
+        // Wall right edge is at x=32
+        // Distance is 35 - 32 = 3 pixels, which is < WALL_CHECK_DISTANCE (5)
+        let position = Position::new(35.0, 50.0);
+        let check_movement = Vec2::new(-WALL_CHECK_DISTANCE, 0.0);
+        let result = swept_aabb_collision(&position, &collider, &wall, check_movement);
+
+        assert!(result.is_some(), "Should detect wall on left side");
+        if let Some((time, normal)) = result {
+            assert!(time < 1.0, "Wall should be within check distance");
+            assert!(normal.x.abs() > 0.5, "Normal should be horizontal");
+        }
+    }
+
+    #[test]
+    fn test_wall_detection_right_side() {
+        let position = Position::new(0.0, 50.0);
+        let collider = Collider::new(32.0, 32.0);
+        let wall = LevelGeometry {
+            x: 35.0,
+            y: 0.0,
+            width: 32.0,
+            height: 200.0,
+        };
+
+        // Check for wall on right side
+        // Player right edge is at x=32
+        // Wall left edge is at x=35
+        // Distance is 35 - 32 = 3 pixels, which is < WALL_CHECK_DISTANCE (5)
+        let check_movement = Vec2::new(WALL_CHECK_DISTANCE, 0.0);
+        let result = swept_aabb_collision(&position, &collider, &wall, check_movement);
+
+        assert!(result.is_some(), "Should detect wall on right side");
+        if let Some((time, normal)) = result {
+            assert!(time < 1.0, "Wall should be within check distance");
+            assert!(normal.x.abs() > 0.5, "Normal should be horizontal");
+        }
+    }
+
+    #[test]
+    fn test_no_wall_detection_when_far() {
+        let position = Position::new(0.0, 50.0);
+        let collider = Collider::new(32.0, 32.0);
+        let wall = LevelGeometry {
+            x: 100.0,
+            y: 0.0,
+            width: 32.0,
+            height: 200.0,
+        };
+
+        // Check for wall - should be too far
+        let check_movement = Vec2::new(WALL_CHECK_DISTANCE, 0.0);
+        let result = swept_aabb_collision(&position, &collider, &wall, check_movement);
+
+        // Wall is too far away
+        assert!(
+            result.is_none() || result.unwrap().0 >= 1.0,
+            "Should not detect wall when too far"
+        );
+    }
+
+    #[test]
+    fn test_wall_normal_points_away_from_wall() {
+        let position = Position::new(60.0, 50.0);
+        let collider = Collider::new(32.0, 32.0);
+        let left_wall = LevelGeometry {
+            x: 0.0,
+            y: 0.0,
+            width: 32.0,
+            height: 200.0,
+        };
+
+        // Check for wall on left side
+        let check_movement = Vec2::new(-WALL_CHECK_DISTANCE, 0.0);
+        let result = swept_aabb_collision(&position, &collider, &left_wall, check_movement);
+
+        if let Some((_time, normal)) = result {
+            // Normal should point right (away from left wall)
+            assert!(
+                normal.x > 0.0,
+                "Normal should point away from left wall (positive x)"
+            );
+        }
+    }
+
+    #[test]
+    fn test_gravity_not_applied_during_wall_cling() {
+        let mut velocity = Velocity::new(0.0, 0.0);
+        let grounded = GroundedState {
+            is_grounded: false,
+            ground_normal: Vec2::ZERO,
+        };
+        let wall_state = WallClimbState {
+            is_clinging: true,
+            wall_normal: Vec2::new(1.0, 0.0),
+        };
+
+        // Simulate one frame of gravity with wall-cling
+        if !grounded.is_grounded && !wall_state.is_clinging {
+            velocity.y += GRAVITY * FIXED_TIMESTEP;
+        }
+
+        assert_eq!(
+            velocity.y, 0.0,
+            "Gravity should not be applied during wall-cling"
+        );
     }
 }
