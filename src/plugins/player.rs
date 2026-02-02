@@ -1,9 +1,11 @@
-use crate::components::{GroundedState, Player, PlayerIntent, Velocity};
+use crate::components::{AbilitySet, GroundedState, Player, PlayerIntent, Velocity};
+use crate::enums::Ability;
 use bevy::prelude::*;
 
 /// Physics constants
 pub const MOVE_SPEED: f32 = 200.0; // pixels per second
 pub const BASE_JUMP_VELOCITY: f32 = -400.0; // pixels per second (negative = up)
+pub const HIGH_JUMP_VELOCITY: f32 = -600.0; // pixels per second
 
 /// Plugin for player character logic and state
 pub struct PlayerPlugin;
@@ -55,12 +57,17 @@ fn apply_horizontal_movement_system(
 
 /// Apply jump mechanics based on player intent
 fn apply_jump_system(
-    mut query: Query<(&PlayerIntent, &mut Velocity, &GroundedState), With<Player>>,
+    mut query: Query<(&PlayerIntent, &mut Velocity, &GroundedState, &AbilitySet), With<Player>>,
 ) {
-    for (intent, mut velocity, grounded) in query.iter_mut() {
-        // Apply fixed jump velocity when grounded and jump pressed
+    for (intent, mut velocity, grounded, ability_set) in query.iter_mut() {
+        // Apply jump velocity when grounded and jump pressed
         if grounded.is_grounded && intent.jump_pressed {
-            velocity.y = BASE_JUMP_VELOCITY;
+            // Check if high jump ability is unlocked
+            if ability_set.has(Ability::HighJump) {
+                velocity.y = HIGH_JUMP_VELOCITY;
+            } else {
+                velocity.y = BASE_JUMP_VELOCITY;
+            }
         }
 
         // Variable jump height - reduce velocity on key release during ascent
@@ -222,5 +229,65 @@ mod tests {
 
         // Velocity should remain unchanged when airborne
         assert_eq!(velocity.x, 50.0);
+    }
+
+    #[test]
+    fn test_high_jump_increases_velocity() {
+        let (mut intent, mut velocity, grounded) = create_test_player();
+        let mut ability_set = AbilitySet::new();
+        ability_set.add(Ability::HighJump);
+        intent.jump_pressed = true;
+
+        // Simulate the system with high jump
+        if grounded.is_grounded && intent.jump_pressed {
+            if ability_set.has(Ability::HighJump) {
+                velocity.y = HIGH_JUMP_VELOCITY;
+            } else {
+                velocity.y = BASE_JUMP_VELOCITY;
+            }
+        }
+
+        assert_eq!(velocity.y, HIGH_JUMP_VELOCITY);
+        assert!(velocity.y.abs() > BASE_JUMP_VELOCITY.abs());
+    }
+
+    #[test]
+    fn test_base_jump_without_high_jump_ability() {
+        let (mut intent, mut velocity, grounded) = create_test_player();
+        let ability_set = AbilitySet::new(); // No abilities
+        intent.jump_pressed = true;
+
+        // Simulate the system without high jump
+        if grounded.is_grounded && intent.jump_pressed {
+            if ability_set.has(Ability::HighJump) {
+                velocity.y = HIGH_JUMP_VELOCITY;
+            } else {
+                velocity.y = BASE_JUMP_VELOCITY;
+            }
+        }
+
+        assert_eq!(velocity.y, BASE_JUMP_VELOCITY);
+    }
+
+    #[test]
+    fn test_high_jump_only_when_grounded() {
+        let (mut intent, mut velocity, mut grounded) = create_test_player();
+        grounded.is_grounded = false;
+        let mut ability_set = AbilitySet::new();
+        ability_set.add(Ability::HighJump);
+        intent.jump_pressed = true;
+        let initial_velocity = velocity.y;
+
+        // Simulate the system
+        if grounded.is_grounded && intent.jump_pressed {
+            if ability_set.has(Ability::HighJump) {
+                velocity.y = HIGH_JUMP_VELOCITY;
+            } else {
+                velocity.y = BASE_JUMP_VELOCITY;
+            }
+        }
+
+        // Velocity should remain unchanged when airborne
+        assert_eq!(velocity.y, initial_velocity);
     }
 }

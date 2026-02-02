@@ -171,6 +171,12 @@ pub struct LevelGeometry {
     pub height: f32,
 }
 
+/// Power-up component - represents a collectible ability power-up
+#[derive(Component, Clone, Copy, Debug, PartialEq)]
+pub struct PowerUp {
+    pub ability: Ability,
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

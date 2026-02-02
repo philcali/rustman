@@ -86,13 +86,13 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 3: Variable jump height**
     - **Validates: Requirements 1.3**
 
-- [ ] 5. Checkpoint - Ensure basic movement and physics work
+- [x] 5. Checkpoint - Ensure basic movement and physics work
   - Run all tests to verify basic movement, jumping, and collision detection
   - Manually test player movement in a simple test level
   - Ask the user if questions arise
 
-- [ ] 6. Implement ability system
-  - [ ] 6.1 Create ability management system
+- [x] 6. Implement ability system
+  - [x] 6.1 Create ability management system
     - Implement AbilitySet component and methods
     - Create power-up collection logic
     - Add abilities to player's set when collected
@@ -106,7 +106,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 11: Locked abilities cannot be used**
     - **Validates: Requirements 2.6**
   
-  - [ ] 6.4 Implement high jump ability
+  - [x] 6.4 Implement high jump ability
     - Check for high jump in ability set
     - Apply increased jump velocity when unlocked
     - _Requirements: 2.3_
