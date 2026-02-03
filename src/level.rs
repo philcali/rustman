@@ -1,8 +1,9 @@
 use crate::enums::Ability;
+use bevy::prelude::Resource;
 use serde::{Deserialize, Serialize};
 
 /// Level data structure matching JSON format
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize, Resource)]
 pub struct LevelData {
     pub id: String,
     pub width: f32,

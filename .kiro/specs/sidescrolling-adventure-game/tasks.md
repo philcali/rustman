@@ -314,8 +314,8 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 31: Power-up collection triggers feedback**
     - **Validates: Requirements 8.3**
 
-- [ ] 13. Implement camera system
-  - [ ] 13.1 Create camera following system
+- [x] 13. Implement camera system
+  - [x] 13.1 Create camera following system
     - Position camera to keep player visible
     - Implement smooth interpolation with lag
     - _Requirements: 9.1, 9.2_
@@ -328,7 +328,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 34: Smooth camera following**
     - **Validates: Requirements 9.2**
   
-  - [ ] 13.4 Implement camera bounds constraint
+  - [x] 13.4 Implement camera bounds constraint
     - Constrain camera to level boundaries
     - Prevent showing out-of-bounds areas
     - _Requirements: 9.3_
@@ -337,7 +337,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 35: Camera bounds constraint**
     - **Validates: Requirements 9.3**
   
-  - [ ] 13.6 Implement viewport scaling
+  - [x] 13.6 Implement viewport scaling
     - Maintain consistent viewport size across resolutions
     - Calculate game units to screen pixels ratio
     - _Requirements: 9.4_
