@@ -247,8 +247,8 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 14: Ability-gated area access**
     - **Validates: Requirements 3.3**
 
-- [ ] 11. Implement checkpoint and save system
-  - [ ] 11.1 Create checkpoint activation system
+- [x] 11. Implement checkpoint and save system
+  - [x] 11.1 Create checkpoint activation system
     - Detect when player activates checkpoint
     - Capture current game state (position, abilities, checkpoint ID)
     - _Requirements: 5.1_
@@ -257,7 +257,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - **Property 19: Complete checkpoint save**
     - **Validates: Requirements 5.1**
   
-  - [ ] 11.3 Implement save to disk
+  - [x] 11.3 Implement save to disk
     - Serialize GameState to JSON
     - Write to save file on disk
     - Handle disk write errors
@@ -272,7 +272,7 @@ This implementation plan breaks down the sidescrolling adventure game into incre
     - Test missing save file handling
     - Test disk write failure handling
   
-  - [ ] 11.6 Implement checkpoint restore
+  - [x] 11.6 Implement checkpoint restore
     - Load saved game state from checkpoint
     - Restore player position and abilities
     - _Requirements: 5.2, 5.4_
