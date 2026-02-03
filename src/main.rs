@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use sidescrolling_adventure_game::plugins::{
-    AbilityPlugin, CheckpointPlugin, LevelPlugin, PhysicsPlugin, PlayerPlugin, SwingPlugin,
+    AbilityPlugin, AnimationPlugin, CheckpointPlugin, LevelPlugin, PhysicsPlugin, PlayerPlugin,
+    SwingPlugin,
 };
 
 fn main() {
@@ -12,5 +13,6 @@ fn main() {
         .add_plugins(SwingPlugin)
         .add_plugins(LevelPlugin)
         .add_plugins(CheckpointPlugin)
+        .add_plugins(AnimationPlugin)
         .run();
 }

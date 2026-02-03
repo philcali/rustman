@@ -153,6 +153,45 @@ impl Default for AnimationState {
 #[derive(Component)]
 pub struct Player;
 
+/// Sprite facing direction
+#[derive(Component, Clone, Copy, Debug, PartialEq)]
+pub enum FacingDirection {
+    Left,
+    Right,
+}
+
+/// Visual effect component - marks entities as visual effects
+#[derive(Component, Clone, Debug, PartialEq)]
+pub struct VisualEffect {
+    pub effect_type: VisualEffectType,
+    pub lifetime: f32, // Duration in seconds
+    pub elapsed: f32,  // Time elapsed since spawn
+}
+
+/// Types of visual effects
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum VisualEffectType {
+    AbilityActivation(Ability),
+    PowerUpCollection(Ability),
+    Jump,
+    WallJump,
+    SwingAttach,
+}
+
+impl VisualEffect {
+    pub fn new(effect_type: VisualEffectType, lifetime: f32) -> Self {
+        Self {
+            effect_type,
+            lifetime,
+            elapsed: 0.0,
+        }
+    }
+
+    pub fn is_expired(&self) -> bool {
+        self.elapsed >= self.lifetime
+    }
+}
+
 /// Player intent component - captures player input
 #[derive(Component, Clone, Copy, Debug, PartialEq, Default)]
 pub struct PlayerIntent {
